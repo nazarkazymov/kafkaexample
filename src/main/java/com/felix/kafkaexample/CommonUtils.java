@@ -5,10 +5,20 @@ import java.util.Properties;
 
 public class CommonUtils {
 
-    static Properties initProperties() {
-        Properties properties = new Properties();
+    static {
+        initProperties("config.properties");
+    }
+
+    static private Properties properties;
+
+    public static String getProperty(String key) {
+        return properties.getProperty(key);
+    }
+
+    static Properties initProperties(String fileName) {
+        properties = new Properties();
         try {
-            properties.load(CommonUtils.class.getClassLoader().getResourceAsStream("config.properties"));
+            properties.load(CommonUtils.class.getClassLoader().getResourceAsStream(fileName));
         } catch (IOException e) {
             e.printStackTrace();
         }
