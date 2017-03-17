@@ -1,4 +1,6 @@
-package com.felix.kafkaexample;
+package com.felix.kafkaexample.producer;
+
+import com.felix.kafkaexample.CommonUtils;
 
 public class TwitterConfigs {
 

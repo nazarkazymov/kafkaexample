@@ -1,4 +1,4 @@
-package com.felix.kafkaexample;
+package com.felix.kafkaexample.producer;
 
 import org.apache.kafka.clients.producer.Producer;
 import org.apache.kafka.clients.producer.ProducerRecord;
@@ -60,7 +60,7 @@ public class KafkaTwitterProducer {
 
             @Override
             public void onStallWarning(StallWarning warning) {
-                 System.out.println("Got stall warning:" + warning);
+                System.out.println("Got stall warning:" + warning);
             }
 
             @Override
@@ -84,14 +84,11 @@ public class KafkaTwitterProducer {
             Status twitterStatus = queue.poll();
 
             if (twitterStatus == null) {
-                Thread.sleep(100);
+                Thread.sleep(1000);
                 i++;
             } else {
-                for (HashtagEntity hashtag: twitterStatus.getHashtagEntities()) {
-                    System.out.println("Hashtag: " + hashtag.getText());
-                    producer.send(new ProducerRecord<>(
-                            KafkaConfigs.getTopicName(), Integer.toString(j++), hashtag.getText()));
-                }
+                producer.send(new ProducerRecord<>(
+                        KafkaConfigs.getTopicName(), Integer.toString(j++), twitterStatus.getText()));
             }
         }
 

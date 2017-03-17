@@ -1,4 +1,4 @@
-package com.felix.kafkaexample;
+package com.felix.kafkaexample.producer;
 
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.Producer;
@@ -28,7 +28,7 @@ public class KafkaConfigs {
 
 
         producer = new KafkaProducer<>(properties);
-        topicName = "SomeTopic";
+        topicName = "my-topic";
     }
 
 
