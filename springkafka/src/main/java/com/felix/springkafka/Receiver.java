@@ -16,4 +16,8 @@ public class Receiver {
         LOGGER.info("Received message = '{}'", message);
         latch.countDown();
     }
+
+    public CountDownLatch getLatch() {
+        return latch;
+    }
 }
