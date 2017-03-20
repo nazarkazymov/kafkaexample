@@ -1,5 +1,6 @@
 package com.felix.springkafka;
 
+import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.kafka.annotation.KafkaListener;
@@ -11,9 +12,9 @@ public class Receiver {
 
     private CountDownLatch latch = new CountDownLatch(1);
 
-    @KafkaListener
-    public void receiveMessage(String message) {
-        LOGGER.info("Received message = '{}'", message);
+    @KafkaListener(topics = "some-another-topic")
+    public void receiveMessage(ConsumerRecord<Integer, String> record) {
+        LOGGER.info("Received key = {}, message = '{}'", record.key(), record.value());
         latch.countDown();
     }
 

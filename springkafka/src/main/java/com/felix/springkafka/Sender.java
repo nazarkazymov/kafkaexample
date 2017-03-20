@@ -16,26 +16,25 @@ public class Sender {
     @Value("${kafka.topic}")
     private String topic;
 
+    private Integer key = 0;
+
     @Autowired
     private KafkaTemplate<Integer, String> kafkaTemplate;
 
-
     public void sendMessage(String message) {
-        // the KafkaTemplate provides asynchronous send methods returning a
-        // Future
-        ListenableFuture<SendResult<Integer, String>> future = kafkaTemplate
-                .send(topic, message);
 
-        // you can register a callback with the listener to receive the result
-        // of the send asynchronously
+        ListenableFuture<SendResult<Integer, String>> future = kafkaTemplate
+                .send(topic, key++, message);
+
         future.addCallback(
                 new ListenableFutureCallback<SendResult<Integer, String>>() {
 
                     @Override
                     public void onSuccess(
                             SendResult<Integer, String> result) {
-                        LOGGER.info("sent message='{}' with offset={}",
-                                message,
+                        LOGGER.info("Sent key={}, message='{}' offset={}",
+                                result.getProducerRecord().key(),
+                                result.getProducerRecord().value(),
                                 result.getRecordMetadata().offset());
                     }
 
@@ -46,7 +45,5 @@ public class Sender {
                     }
                 });
 
-        // alternatively, to block the sending thread, to await the result,
-        // invoke the future's get() method
     }
 }

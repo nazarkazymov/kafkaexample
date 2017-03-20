@@ -2,14 +2,16 @@ package com.felix.springkafka;
 
 
 import com.felix.springkafka.util.MemoryMonitor;
-import org.junit.BeforeClass;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
-import java.util.concurrent.*;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -28,7 +30,7 @@ public class SpringKafkaApplicationTest {
     private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
 
 
-    @BeforeClass
+    @Before
     public void init(){
         memoryMonitor = new MemoryMonitor();
     }
@@ -41,8 +43,9 @@ public class SpringKafkaApplicationTest {
             sender.sendMessage(message);
 
         };
-        scheduler.scheduleAtFixedRate(task, 0, 1, TimeUnit.SECONDS);
-        receiver.getLatch().await(10, TimeUnit.SECONDS);
+        scheduler.scheduleAtFixedRate(task, 0, 10, TimeUnit.SECONDS);
+        Thread.currentThread().join();
+        receiver.getLatch().await(1, TimeUnit.MINUTES);
         assertThat(receiver.getLatch().getCount()).isEqualTo(0);
     }
 }

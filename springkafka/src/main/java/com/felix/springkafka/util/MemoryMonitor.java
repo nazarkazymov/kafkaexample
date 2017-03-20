@@ -32,8 +32,4 @@ public class MemoryMonitor {
         return sb.toString();
     }
 
-    public MemoryMonitor() {
-        monitor();
-    }
-
 }
