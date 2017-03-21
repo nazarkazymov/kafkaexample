@@ -3,11 +3,16 @@ package com.felix.kafkaexample.consumer;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Arrays;
 import java.util.Properties;
 
 public class ConsumerGroup {
+    private static final Logger LOGGER = LoggerFactory.getLogger(ConsumerGroup.class);
+
+
     public static void main(String[] args) {
         Properties properties = new Properties();
         properties.put("bootstrap.servers", "localhost:9092");
@@ -25,13 +30,13 @@ public class ConsumerGroup {
 
         KafkaConsumer<String, String> kafkaConsumer = new KafkaConsumer<>(properties);
         kafkaConsumer.subscribe(Arrays.asList(topic));
-        System.out.println("Subscribed to topic " + topic);
+        LOGGER.debug("Subscribed to topic " + topic);
 
         while (true) {
             ConsumerRecords<String, String> records = kafkaConsumer.poll(100);
             for (ConsumerRecord<String, String> record : records)
-                System.out.printf("offset = %d, key = %s, value = %s\n",
-                        record.offset(), record.key(), record.value());
+                LOGGER.info("key = {}, value = '{}'",
+                        record.key(), record.value());
         }
     }
 }

@@ -2,12 +2,16 @@ package com.felix.kafkaexample.producer;
 
 import org.apache.kafka.clients.producer.Producer;
 import org.apache.kafka.clients.producer.ProducerRecord;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import twitter4j.*;
 import twitter4j.conf.ConfigurationBuilder;
 
 import java.util.concurrent.LinkedBlockingQueue;
 
 public class KafkaTwitterProducer {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(KafkaTwitterProducer.class);
 
     private TwitterConfigs twitterConfigs = new TwitterConfigs();
     private KafkaConfigs kafkaConfigs = new KafkaConfigs();
@@ -16,7 +20,7 @@ public class KafkaTwitterProducer {
     ConfigurationBuilder configurationBuilder = new ConfigurationBuilder();
     private TwitterStream twitterStream;
 
-    void initTwitter() throws InterruptedException {
+    public void initTwitter() throws InterruptedException {
         configurationBuilder.setDebugEnabled(true)
                 .setOAuthConsumerKey(TwitterConfigs.CONSUMER_KEY)
                 .setOAuthConsumerSecret(TwitterConfigs.CONSUMER_SECRET)
@@ -29,38 +33,30 @@ public class KafkaTwitterProducer {
             @Override
             public void onStatus(Status status) {
                 queue.offer(status);
-                System.out.println("@" + status.getUser().getScreenName()
-                        + " - " + status.getText());
-                for (URLEntity urle : status.getURLEntities()) {
-                    System.out.println(urle.getDisplayURL());
-                }
 
-                for (HashtagEntity hashtag : status.getHashtagEntities()) {
-                    System.out.println(hashtag.getText());
-                }
             }
 
             @Override
             public void onDeletionNotice(StatusDeletionNotice statusDeletionNotice) {
-                System.out.println("Got a status deletion notice id:"
+                LOGGER.info("Got a status deletion notice id:"
                         + statusDeletionNotice.getStatusId());
             }
 
             @Override
             public void onTrackLimitationNotice(int numberOfLimitedStatuses) {
-                System.out.println("Got track limitation notice:" +
+                LOGGER.info("Got track limitation notice:" +
                         numberOfLimitedStatuses);
             }
 
             @Override
             public void onScrubGeo(long userId, long upToStatusId) {
-                System.out.println("Got scrub_geo event userId:" + userId +
+                LOGGER.info("Got scrub_geo event userId:" + userId +
                         "upToStatusId:" + upToStatusId);
             }
 
             @Override
             public void onStallWarning(StallWarning warning) {
-                System.out.println("Got stall warning:" + warning);
+                LOGGER.info("Got stall warning:" + warning);
             }
 
             @Override
@@ -87,8 +83,11 @@ public class KafkaTwitterProducer {
                 Thread.sleep(1000);
                 i++;
             } else {
+                int key = j;
+                String value = twitterStatus.getText();
                 producer.send(new ProducerRecord<>(
-                        KafkaConfigs.getTopicName(), Integer.toString(j++), twitterStatus.getText()));
+                        KafkaConfigs.getTopicName(), Integer.toString(j++), value));
+                LOGGER.info("Sending messsage with key = {}, value = '{}'", key, value);
             }
         }
 
